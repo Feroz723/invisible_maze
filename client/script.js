@@ -33,76 +33,92 @@ const STATE = {
 };
 
 // --- DOM Elements ---
-const els = {
-  app: document.querySelector('.app-container'),
-  gridContainer: document.getElementById('grid-container'),
-  screens: {
-    start: document.getElementById('start-screen'),
-    game: document.getElementById('game-ui'),
-    success: document.getElementById('success-screen'),
-    instructions: document.getElementById('instructions-overlay')
-  },
-  stats: {
-    level: document.getElementById('stat-level'),
-    attempts: document.getElementById('stat-attempts'),
-    time: document.getElementById('stat-time'),
-    keyIcon: document.getElementById('stat-key-icon')
-  },
-  buttons: {
-    start: document.getElementById('btn-start'),
-    practice: document.getElementById('btn-mode-practice'),
-    challenge: document.getElementById('btn-mode-challenge'),
-    diffs: document.querySelectorAll('.diff-btn'),
-    restart: document.getElementById('btn-restart'),
-    nextLevel: document.getElementById('btn-next-level'),
-    home: document.getElementById('btn-home'),
-    gameHome: document.getElementById('btn-game-home')
-  }
-};
+let els = {};
 
 // --- Initialization ---
 function init() {
+  console.log('Initializing Game...');
+  
+  // Populate Elements here to ensure DOM is ready
+  els = {
+    app: document.querySelector('.app-container'),
+    gridContainer: document.getElementById('grid-container'),
+    screens: {
+      start: document.getElementById('start-screen'),
+      game: document.getElementById('game-ui'),
+      success: document.getElementById('success-screen'),
+      instructions: document.getElementById('instructions-overlay')
+    },
+    stats: {
+      level: document.getElementById('stat-level'),
+      attempts: document.getElementById('stat-attempts'),
+      time: document.getElementById('stat-time'),
+      keyIcon: document.getElementById('stat-key-icon')
+    },
+    buttons: {
+      start: document.getElementById('btn-start'),
+      practice: document.getElementById('btn-mode-practice'),
+      challenge: document.getElementById('btn-mode-challenge'),
+      diffs: document.querySelectorAll('.diff-btn'),
+      restart: document.getElementById('btn-restart'),
+      nextLevel: document.getElementById('btn-next-level'),
+      home: document.getElementById('btn-home'),
+      gameHome: document.getElementById('btn-game-home')
+    }
+  };
+
   loadProgress();
   setupEventListeners();
   selectDifficulty('EASY');
+  console.log('Game Initialized');
 }
 
 function setupEventListeners() {
   // Difficulty Selection
-  els.buttons.diffs.forEach(btn => {
-    btn.addEventListener('click', () => selectDifficulty(btn.dataset.diff));
-  });
+  if (els.buttons.diffs) {
+    els.buttons.diffs.forEach(btn => {
+      btn.addEventListener('click', () => selectDifficulty(btn.dataset.diff));
+    });
+  }
 
   // Start Game
-  els.buttons.start.addEventListener('click', () => startGame(true));
+  if (els.buttons.start) els.buttons.start.addEventListener('click', () => startGame(true));
   
   // Mode Selection
-  els.buttons.practice.addEventListener('click', () => setMode('PRACTICE'));
-  els.buttons.challenge.addEventListener('click', () => setMode('CHALLENGE'));
+  if (els.buttons.practice) els.buttons.practice.addEventListener('click', () => setMode('PRACTICE'));
+  if (els.buttons.challenge) els.buttons.challenge.addEventListener('click', () => setMode('CHALLENGE'));
 
   // In-Game Home Button
-  els.buttons.gameHome.addEventListener('click', () => {
-    STATE.isPlaying = false;
-    if (STATE.timerInterval) clearInterval(STATE.timerInterval);
-    showScreen('start');
-  });
+  if (els.buttons.gameHome) {
+    els.buttons.gameHome.addEventListener('click', () => {
+      STATE.isPlaying = false;
+      if (STATE.timerInterval) clearInterval(STATE.timerInterval);
+      showScreen('start');
+    });
+  }
 
   // Success Screen Actions
-  els.buttons.nextLevel.addEventListener('click', () => {
-    hideScreen('success');
-    STATE.currentLevel++;
-    startGame(false); // false = don't reset level
-  });
+  if (els.buttons.nextLevel) {
+    els.buttons.nextLevel.addEventListener('click', () => {
+      hideScreen('success');
+      STATE.currentLevel++;
+      startGame(false); // false = don't reset level
+    });
+  }
 
-  els.buttons.restart.addEventListener('click', () => {
-    hideScreen('success');
-    startGame(false); // Replay same level (same logic, new gen)
-  });
+  if (els.buttons.restart) {
+    els.buttons.restart.addEventListener('click', () => {
+      hideScreen('success');
+      startGame(false); // Replay same level (same logic, new gen)
+    });
+  }
   
-  els.buttons.home.addEventListener('click', () => {
-    hideScreen('success');
-    showScreen('start');
-  });
+  if (els.buttons.home) {
+    els.buttons.home.addEventListener('click', () => {
+      hideScreen('success');
+      showScreen('start');
+    });
+  }
 
   // Controls
   document.addEventListener('keydown', handleInput);
@@ -537,4 +553,8 @@ function hideScreen(id) {
 }
 
 // Start
-init();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
