@@ -28,6 +28,7 @@ const STATE = {
   timerInterval: null,
   walls: [], // Array of {x, y, dir}
   revealedWalls: [], // String keys "x,y,dir"
+  currentLevel: 1,
   isPlaying: false
 };
 
@@ -42,6 +43,7 @@ const els = {
     instructions: document.getElementById('instructions-overlay')
   },
   stats: {
+    level: document.getElementById('stat-level'),
     attempts: document.getElementById('stat-attempts'),
     time: document.getElementById('stat-time'),
     keyIcon: document.getElementById('stat-key-icon')
@@ -52,7 +54,9 @@ const els = {
     challenge: document.getElementById('btn-mode-challenge'),
     diffs: document.querySelectorAll('.diff-btn'),
     restart: document.getElementById('btn-restart'),
-    home: document.getElementById('btn-home')
+    nextLevel: document.getElementById('btn-next-level'),
+    home: document.getElementById('btn-home'),
+    gameHome: document.getElementById('btn-game-home')
   }
 };
 
@@ -70,17 +74,31 @@ function setupEventListeners() {
   });
 
   // Start Game
-  els.buttons.start.addEventListener('click', () => startGame());
+  els.buttons.start.addEventListener('click', () => startGame(true));
   
   // Mode Selection
   els.buttons.practice.addEventListener('click', () => setMode('PRACTICE'));
   els.buttons.challenge.addEventListener('click', () => setMode('CHALLENGE'));
 
+  // In-Game Home Button
+  els.buttons.gameHome.addEventListener('click', () => {
+    STATE.isPlaying = false;
+    if (STATE.timerInterval) clearInterval(STATE.timerInterval);
+    showScreen('start');
+  });
+
   // Success Screen Actions
+  els.buttons.nextLevel.addEventListener('click', () => {
+    hideScreen('success');
+    STATE.currentLevel++;
+    startGame(false); // false = don't reset level
+  });
+
   els.buttons.restart.addEventListener('click', () => {
     hideScreen('success');
-    startGame();
+    startGame(false); // Replay same level (same logic, new gen)
   });
+  
   els.buttons.home.addEventListener('click', () => {
     hideScreen('success');
     showScreen('start');
@@ -120,12 +138,16 @@ function setMode(mode) {
 
 // --- Game Logic ---
 
-function startGame() {
+function startGame(resetLevel = true) {
   STATE.isPlaying = true;
   STATE.attempts = 0;
   STATE.hasKey = false;
   STATE.revealedWalls = [];
   STATE.startTime = Date.now();
+  
+  if (resetLevel) {
+    STATE.currentLevel = 1;
+  }
   
   // Generate Level
   generateLevel();
@@ -338,6 +360,7 @@ function renderGrid() {
 }
 
 function updateStats() {
+  els.stats.level.textContent = STATE.currentLevel;
   els.stats.attempts.textContent = STATE.attempts;
   els.stats.keyIcon.style.opacity = STATE.hasKey ? '1' : '0.3';
   els.stats.keyIcon.style.color = STATE.hasKey ? 'var(--accent-key)' : 'var(--text-secondary)';

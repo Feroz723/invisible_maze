@@ -67,12 +67,34 @@ header {
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--grid-line);
   margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.btn-icon {
+  background: transparent;
+  border: 1px solid var(--grid-line);
+  color: var(--text-secondary);
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  background: var(--grid-bg);
 }
 
 .stats-bar {
+  flex: 1;
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+  justify-content: flex-end;
+  gap: 1.5rem;
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
